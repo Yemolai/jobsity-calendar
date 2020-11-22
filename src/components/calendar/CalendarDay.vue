@@ -6,7 +6,7 @@
       </span>
       <div class="reminder-list">
         <reminder
-          v-for="reminder in reminders"
+          v-for="reminder in reminderList"
           :key="reminder.key"
           :value="reminder"
         />
@@ -45,6 +45,14 @@ export default {
     },
     formattedDate () {
       return format(this.date, 'd')
+    },
+    reminderList () {
+      const { reminders = [] } = this
+      return reminders
+        .slice(0)
+        .sort(({ date: a }, { date: b }) => {
+          return a.getTime() - b.getTime()
+        })
     }
   }
 }
