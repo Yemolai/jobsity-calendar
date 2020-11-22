@@ -29,6 +29,14 @@
         <span class="label">City:&nbsp;</span>
         <input type="text" v-model="city">
       </label>
+      <label v-if="value.forecast" class="col forecast">
+        <p class="label">
+          Forecast:
+        </p>
+        <p class="text">
+          {{ value.forecast }}
+        </p>
+      </label>
       <label class="col">
         <span class="label">Color:&nbsp;</span>
         <input
@@ -196,11 +204,20 @@ label > input {
 .reminder-form > form {
   margin: 0 1em;
 }
+.reminder-form .forecast {
+  text-align: left;
+}
+.reminder-form .forecast > .text {
+  font-style: oblique;
+}
 .justify-center {
   display: flex;
   justify-content: center;
 }
 .clickable {
   cursor: pointer;
+}
+p {
+  margin: 0;
 }
 </style>

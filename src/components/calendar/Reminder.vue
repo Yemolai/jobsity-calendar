@@ -4,12 +4,17 @@
     :style="dynamicStyles"
     @click="$emit('click', value)"
   >
-    <span class="time">
-      {{ value.time }}
-    </span>
-    <span class="text">
-      {{ value.text }}
-    </span>
+    <p>
+      <span class="time">
+        {{ value.time }}
+      </span>
+      <span class="text">
+        {{ value.text }}
+      </span>
+    </p>
+    <p v-if="value.forecast" class="forecast">
+      {{ value.forecast }}
+    </p>
   </div>
 </template>
 
@@ -56,11 +61,20 @@ export default {
   font-size: 0.85em;
   font-weight: 400;
   text-align: left;
-  padding: 0.1em 0.2em;
+  padding: 0.25em 0.55em;
   border-radius: 0.2em;
+}
+.reminder p {
+  margin: 0;
 }
 .reminder > .time {
   font-weight: 600;
+}
+.reminder .forecast {
+  text-align: right;
+  font-style: oblique;
+  font-size: 0.8em;
+  opacity: 0.75;
 }
 .text-light {
   color: var(--color-light, #eee)
