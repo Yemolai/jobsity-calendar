@@ -1,7 +1,8 @@
 /* export function getter () {} */
 
 export function map (state) {
-  const tuples = state.list.map(reminder => [reminder.id, reminder])
+  const { list = [] } = state
+  const tuples = list.map(reminder => [reminder.id, reminder])
   return new Map([...tuples])
 }
 

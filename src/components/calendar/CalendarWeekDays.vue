@@ -34,8 +34,9 @@ export default {
   width: 100%;
   min-height: 2em;
   justify-content: space-between;
-  background-color: #4060fe;
-  color: #ddd;
+  background-color: var(--color-primary, #4060fe);
+  color: var(--color-light);
+  font-weight: 600;
 }
 span.weekday {
   width: 100%;

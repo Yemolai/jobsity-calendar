@@ -1,5 +1,5 @@
 <template>
-  <div :class="['day', ...dynamicClasses]">
+  <div :class="{ day: true, ...dynamicClasses }">
     <div class="contents">
       <span class="date">
         {{ formattedDate }}
@@ -66,6 +66,7 @@ export default {
 }
 .day.weekend {
   background-color: rgba(240, 240, 240, 0.8);
+  color: var(--color-primary);
 }
 .day:not(.weekend),
 .day:not(.other-month) {
