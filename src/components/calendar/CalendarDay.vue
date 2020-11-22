@@ -9,6 +9,7 @@
           v-for="reminder in reminderList"
           :key="reminder.key"
           :value="reminder"
+          @click="payload => $emit('reminder-click', payload)"
         />
       </div>
     </div>

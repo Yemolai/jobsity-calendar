@@ -5,6 +5,7 @@
       v-for="[date, contents] in daysList"
       :key="`day-${date.getTime()}`"
       :date="date"
+      @reminder-click="payload => $emit('reminder-click', payload)"
     />
   </div>
 </template>

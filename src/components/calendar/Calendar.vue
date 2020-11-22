@@ -5,7 +5,7 @@
       v-for="(week, idx) of weeks"
       :key="`week-${idx + 1}`"
       :days="week"
-      @day:click="day => $emit('click', day)"
+      @reminder-click="payload => $emit('reminder-click', payload)"
     />
   </div>
 </template>

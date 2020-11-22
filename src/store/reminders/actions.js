@@ -17,11 +17,14 @@ export function create ({ commit }, payload) {
 
 export function update ({ commit }, payload) {
   try {
-    const { id, reminder: { text, city, day, time, color } } = payload
-    const reminder = { text, city, day, time, color }
+    const { id, reminder: reminderData } = payload
+    const { date, text, city, color } = reminderData
+    const day = format(date, 'yyyy-MM-dd')
+    const time = format(date, 'HH:mm')
+    const reminder = { id, date, text, city, day, time, color }
     commit(UPDATE_REMINDER, { id, reminder })
   } catch (error) {
-    // todo: replace here with logger call
+    // todo: replace here with a proper logger call
     console.error('Failed to update reminder', payload, error.message, error)
   }
 }
@@ -31,7 +34,7 @@ export function remove ({ commit }, payload) {
     const { id } = payload
     commit(REMOVE_REMINDER, { id })
   } catch (error) {
-    // todo: replace here with logger call
+    // todo: replace here with a proper logger call
     console.error('Failed to remove reminder', error.message, error)
   }
 }

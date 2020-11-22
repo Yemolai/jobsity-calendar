@@ -7,8 +7,8 @@
       <calendar
         :reminders="reminders"
         :reference-date="referenceDate"
-        @date:update="updateReferenceDate"
-        @reminder:remove="removeReminder"
+        @date-update="updateReferenceDate"
+        @reminder-click="editReminder"
       />
     </div>
     <div class="action-buttons-wrapper" v-if="!showReminderForm">
@@ -21,6 +21,7 @@
         v-model="reminder"
         :mode="reminderFormMode"
         @reminder-save="upsertReminder"
+        @reminder-remove="confirmRemoveReminder"
         @close="closeReminderForm"
       />
     </div>
@@ -75,6 +76,7 @@ export default {
     },
     closeReminderForm () {
       this.reminder = createEmptyReminderObject()
+      this.reminderFormMode = 'add'
       this.showReminderForm = false
     },
     upsertReminder () {
@@ -99,6 +101,27 @@ export default {
       this.reminder = createEmptyReminderObject()
       this.reminderFormMode = 'add'
       this.showReminderForm = true
+    },
+    editReminder (reminder) {
+      this.reminder = reminder
+      this.reminderFormMode = 'update'
+      this.showReminderForm = true
+    },
+    confirmRemoveReminder (reminder) {
+      const formattedDate = `${reminder.day} ${reminder.time}`
+      const message = `Are you sure you want to remove the "${reminder.text}" at ${formattedDate}`
+      const confirmation = confirm(message)
+      if (confirmation === true) {
+        this.removeReminder({ id: reminder.id })
+          .then(this.closeReminderForm)
+          .catch((error) => {
+            const { message } = error
+            // todo: replace by a logger to handle unexpected errors
+            console.error('Failed to remove reminder', message, error)
+            alert('Sorry, an error occurred while trying to remove this reminder')
+            this.closeReminderForm()
+          })
+      }
     }
   }
 }

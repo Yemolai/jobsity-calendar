@@ -34,9 +34,15 @@
         <input
           readonly
           type="text"
+          class="clickable"
           v-model="color"
           @click="showColorPicker = !showColorPicker"
         >
+        <span>
+          <small>
+            Click on the color field to toggle the color picker
+          </small>
+        </span>
       </label>
       <div class="col justify-center">
         <color-picker
@@ -44,9 +50,15 @@
           v-model.lazy="color"
         />
       </div>
-      <div class="col actions justify-end">
+      <div class="col actions">
         <button @click="saveReminder">
           Save
+        </button>
+        <button
+          v-if="mode === 'update'"
+          @click="$emit('reminder-remove', value)"
+        >
+          Remove
         </button>
       </div>
     </form>
@@ -153,7 +165,8 @@ export default {
   margin-bottom: 8px;
 }
 .col {
-  width: 100%;
+  width: calc(100% - calc(0.4em * 2));
+  padding: 0 0.4em;
 }
 .title {
   display: flex;
@@ -162,8 +175,8 @@ export default {
 }
 .actions {
   display: flex;
-  flex-flow: row wrap;
-  justify-content: flex-end;
+  flex-flow: row-reverse wrap;
+  justify-content: space-around;
   align-items: center;
 }
 label {
@@ -186,10 +199,6 @@ label > input {
 .justify-center {
   display: flex;
   justify-content: center;
-}
-.justify-end {
-  display: flex;
-  justify-content: flex-end;
 }
 .clickable {
   cursor: pointer;
