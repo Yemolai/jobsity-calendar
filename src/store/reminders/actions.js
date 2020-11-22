@@ -1,10 +1,12 @@
-/* export function actions () {} */
+import format from 'date-fns/format'
 import { CREATE_REMINDER, REMOVE_REMINDER, UPDATE_REMINDER } from '@/store/reminders/mutation-types'
 
 export function create ({ commit }, payload) {
   try {
     const { reminder: reminderData } = payload
-    const { date, text, city, day, time, color } = reminderData
+    const { date, text, city, color } = reminderData
+    const day = format(date, 'yyyy-MM-dd')
+    const time = format(date, 'HH:mm')
     const reminder = { date, text, city, day, time, color }
     commit(CREATE_REMINDER, { reminder })
   } catch (error) {

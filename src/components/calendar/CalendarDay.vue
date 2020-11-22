@@ -4,6 +4,13 @@
       <span class="date">
         {{ formattedDate }}
       </span>
+      <div class="reminder-list">
+        <reminder
+          v-for="reminder in reminders"
+          :key="reminder.key"
+          :value="reminder"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -11,9 +18,11 @@
 <script>
 import format from 'date-fns/format'
 import isWeekend from 'date-fns/isWeekend'
+import Reminder from '@/components/calendar/Reminder'
 
 export default {
   name: 'CalendarDay',
+  components: { Reminder },
   props: {
     today: Boolean,
     otherMonth: Boolean,
@@ -51,11 +60,19 @@ export default {
   border-bottom: 1px solid var(--color-dark);
 }
 .day > .contents {
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 0.8em);
+  min-height: calc(100% - 0.8em);
+  max-height: calc(100% - 0.6em);
   display: flex;
   flex-direction: column;
   padding: 0.4em;
+}
+.day > .contents > .reminder-list {
+  max-height: calc(100% - 2em);
+  overflow-y: auto;
+}
+.day > .contents > .reminder-list > * {
+  margin-bottom: 0.1em;
 }
 .day > .contents > span.date {
   text-align: left;
@@ -68,11 +85,20 @@ export default {
   background-color: rgba(240, 240, 240, 0.8);
   color: var(--color-primary);
 }
-.day:not(.weekend),
-.day:not(.other-month) {
+.day.weekend,
+.day.other-month {
+  font-weight: 400;
+}
+.day {
   font-weight: 600;
 }
 .day.today {
   background-color: rgba(180, 210, 255, 0.6);
+}
+.reminder-list {
+  width: calc(100% - 0.6em);
+  display: flex;
+  flex-direction: column;
+  padding: 0.2em;
 }
 </style>

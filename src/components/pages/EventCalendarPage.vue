@@ -20,7 +20,7 @@
       <reminder-form
         v-model="reminder"
         :mode="reminderFormMode"
-        @reminder:submit="upsertReminder"
+        @reminder-save="upsertReminder"
         @close="closeReminderForm"
       />
     </div>
@@ -34,6 +34,14 @@ import isValid from 'date-fns/isValid'
 import Calendar from '@/components/calendar/Calendar'
 import ReminderForm from '@/components/calendar/ReminderForm'
 
+// using function to return new object without referencing the previous object
+const createEmptyReminderObject = () => ({
+  text: '',
+  date: new Date(),
+  city: '',
+  color: '#4560bb'
+})
+
 export default {
   name: 'EventCalendarPage',
   components: { ReminderForm, Calendar },
@@ -42,7 +50,7 @@ export default {
       referenceDate: new Date(),
       showReminderForm: false,
       reminderFormMode: 'add',
-      reminder: {}
+      reminder: createEmptyReminderObject()
     }
   },
   computed: {
@@ -66,18 +74,29 @@ export default {
       }
     },
     closeReminderForm () {
-      this.reminder = {}
+      this.reminder = createEmptyReminderObject()
       this.showReminderForm = false
     },
-    upsertReminder (reminder) {
-      if ('id' in reminder) {
-        this.updateReminder({ id: reminder.id, reminder })
+    upsertReminder () {
+      const { reminder } = this
+      let promise
+      if (typeof reminder === 'object' && 'id' in reminder) {
+        promise = this.updateReminder({ id: reminder.id, reminder })
       } else {
-        this.createReminder({ reminder })
+        promise = this.createReminder({ reminder })
       }
+      promise.then(() => {
+        this.showReminderForm = false
+        this.reminderFormMode = 'add'
+        this.reminder = {}
+      })
+        .catch(() => {
+        // todo: use a modal dialog here instead of alert
+          alert('failed to save')
+        })
     },
     triggerCreateReminderForm () {
-      this.reminder = {}
+      this.reminder = createEmptyReminderObject()
       this.reminderFormMode = 'add'
       this.showReminderForm = true
     }

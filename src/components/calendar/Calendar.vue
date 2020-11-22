@@ -72,7 +72,7 @@ export default {
         .map(week => week
           .map(day => {
             const reminders = this.reminders
-              .filter(reminder => isSameDay(reminder.date))
+              .filter(reminder => isSameDay(reminder.date, day))
 
             const today = isSameDay(day, new Date())
 

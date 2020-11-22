@@ -2,10 +2,10 @@
   <div class="reminder-form">
     <div class="col title">
       <p>
-        <span>
+        <span v-if="mode === 'add'">
           Create new
         </span>
-        <span>
+        <span v-else-if="mode === 'update'">
           Update
         </span>
         reminder
@@ -19,7 +19,7 @@
     <form @submit="e => e.preventDefault()">
       <label class="col">
         <span class="label">Text:&nbsp;</span>
-        <input type="text" maxlength="30" v-model="text">
+        <input type="text" maxlength="30" v-model.lazy="text">
       </label>
       <label class="col">
         <span class="label">Day and time:&nbsp;</span>
@@ -31,13 +31,22 @@
       </label>
       <label class="col">
         <span class="label">Color:&nbsp;</span>
-        <color-picker
+        <input
+          readonly
+          type="text"
           v-model="color"
-        />
+          @click="showColorPicker = !showColorPicker"
+        >
       </label>
+      <div class="col justify-center">
+        <color-picker
+          v-if="showColorPicker"
+          v-model.lazy="color"
+        />
+      </div>
       <div class="col actions justify-end">
-        <button @click="save">
-          Salvar
+        <button @click="saveReminder">
+          Save
         </button>
       </div>
     </form>
@@ -45,83 +54,86 @@
 </template>
 
 <script>
-import getISODatetime from 'date-fns/getISODay'
+import { Chrome as ColorPicker } from 'vue-color'
+
 export default {
   name: 'ReminderForm',
+  components: { ColorPicker },
+  props: {
+    mode: {
+      type: String,
+      enum: ['add', 'update'],
+      default: 'add'
+    },
+    value: {
+      type: Object,
+      default: () => ({})
+    }
+  },
   data () {
     return {
-      value: {
-        date: new Date(),
-        text: '',
-        city: '',
-        color: '#fbfbfb'
-      }
+      showColorPicker: false
     }
   },
   computed: {
     text: {
       get () {
-        return this.value.text
+        const { text = '' } = this.value
+        return text
       },
       set (val) {
-        this.value.text = `${val}`.slice(30)
+        const text = `${val}`.slice(0, 30)
+        this.$emit('input', { ...this.value, text })
       }
     },
     city: {
       get () {
-        return this.value.city
+        const { city = '' } = this.value
+        return city
       },
       set (val) {
-        this.value.city = `${val}`
+        const city = `${val}`
+        this.$emit('input', { ...this.value, city })
       }
     },
     date: {
       get () {
-        const { date = new Date() } = this.value || {}
-        return getISODatetime(date)
-      },
-      set (val) {
-        this.value.date = new Date(val)
-      }
-    },
-    day: {
-      get () {
-        const { date = new Date() } = this.value
-        const year = date.getFullYear()
-        const month = date.getMonth()
-        const day = date.getDate()
-        return `${year}-${month}-${day}`
-      },
-      set (val) {
-        console.log({ date: val })
-        this.value.day = new Date(val)
-      }
-    },
-    time: {
-      get () {
-        const { date = new Date() } = this.value
-        const hours = date.getHours()
-        const minutes = date.getMinutes()
-        return [hours, minutes]
+        const { date: rawTimestamp = new Date() } = this.value || {}
+        const timestamp = rawTimestamp instanceof Date
+          ? rawTimestamp
+          : new Date(rawTimestamp)
+        const date = [
+          timestamp.getFullYear(),
+          timestamp.getMonth() + 1,
+          timestamp.getDate()
+        ].join('-')
+        const time = [
+          timestamp.getHours(),
+          timestamp.getMinutes()
+        ]
           .map(v => v.toString().padStart(2, '0'))
           .join(':')
+        return [date, time].join('T')
       },
       set (val) {
-        const [hours, minutes] = val.split(':')
-          .map(v => Number(v))
-        if (Number.isNaN(hours) || Number.isNaN(minutes)) {
-          throw new Error('time is not a number')
-        }
-        if (hours >= 24 || minutes >= 60) {
-          throw new Error('invalid time')
-        }
-        this.value.date.setHours(hours, minutes)
+        const date = new Date(val)
+        this.$emit('input', { ...this.value, date })
+      }
+    },
+    color: {
+      get () {
+        const { color = '#4560bb' } = this.value
+        return color
+      },
+      set ({ hex }) {
+        const color = hex
+        this.$emit('input', { ...this.value, color })
       }
     }
   },
   methods: {
-    save () {
-      this.$emit('input', this.value)
+    saveReminder () {
+      this.$emit('reminder-save')
     }
   }
 }
@@ -131,6 +143,9 @@ export default {
 .reminder-form {
   display: flex;
   flex-flow: column nowrap;
+  padding: 1em;
+  margin: 0.8em;
+  border: 1px solid var(--color-dark);
 }
 .reminder-form > *,
 .reminder-form > form > * {
@@ -168,8 +183,15 @@ label > input {
 .reminder-form > form {
   margin: 0 1em;
 }
+.justify-center {
+  display: flex;
+  justify-content: center;
+}
 .justify-end {
   display: flex;
   justify-content: flex-end;
+}
+.clickable {
+  cursor: pointer;
 }
 </style>
