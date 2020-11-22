@@ -1,8 +1,21 @@
 import format from 'date-fns/format'
+import differenceInDays from 'date-fns/differenceInDays'
 
+export const WEATHER_API_BASE_URL = 'http://api.weatherapi.com/v1'
 const apiKeyEnvVarName = 'VUE_APP_WEATHER_API_KEY'
 const { [apiKeyEnvVarName]: apiKey } = process.env
-const WEATHER_API_BASE_URL = 'http://api.weatherapi.com/v1'
+
+export async function getForecast (city, date) {
+  const daysDifference = Math.abs(differenceInDays(date, new Date()))
+  if (daysDifference <= 10) {
+    return getWeatherFor(city, date)
+      .catch(err => {
+        console.error(err.message, err)
+        return null
+      })
+  }
+  return null
+}
 
 export async function getWeatherFor (city, date) {
   if (!apiKey || apiKey.length < 1) {

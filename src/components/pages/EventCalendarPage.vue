@@ -34,6 +34,7 @@ import format from 'date-fns/format'
 import isValid from 'date-fns/isValid'
 import Calendar from '@/components/calendar/Calendar'
 import ReminderForm from '@/components/calendar/ReminderForm'
+import { getForecast } from '@/services/weather.service'
 
 // using function to return new object without referencing the previous object
 const createEmptyReminderObject = () => ({
@@ -79,9 +80,12 @@ export default {
       this.reminderFormMode = 'add'
       this.showReminderForm = false
     },
-    upsertReminder () {
-      const { reminder } = this
+    async upsertReminder () {
+      const { reminder: reminderData } = this
       let promise
+      const { city, date } = reminderData
+      const forecast = city.length ? await getForecast(city, date) : null
+      const reminder = { ...reminderData, forecast }
       if (typeof reminder === 'object' && 'id' in reminder) {
         promise = this.updateReminder({ id: reminder.id, reminder })
       } else {
