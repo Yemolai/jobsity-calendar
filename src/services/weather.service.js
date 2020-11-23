@@ -57,7 +57,7 @@ export async function getWeatherFor (city, date) {
     .catch(error => {
       const { message } = error
       // todo: replace with a proper logger
-      console.log('Failed to fetch weather data', message, error)
+      console.error('Failed to fetch weather data', message, error)
       return null
     })
 }
