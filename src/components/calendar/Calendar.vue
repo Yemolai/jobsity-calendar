@@ -47,16 +47,17 @@ export default {
     },
     weeks () {
       const {
-        firstWeekDayOfFirstMonthWeek: firstDay,
+        firstWeekDayOfFirstMonthWeek: firstWeekDay,
+        monthFirstDay,
         weeksInCurrentMonth: weekCount
       } = this
 
       const daysInAWeek = 7
 
-      const firstWeekIndex = getWeek(firstDay)
+      const firstWeekIndex = getWeek(firstWeekDay)
 
       const weeksList = new Array(weekCount)
-        .fill(firstDay)
+        .fill(firstWeekDay)
         .map((firstDay, monthWeekIndex) => {
           const weekIndex = monthWeekIndex + firstWeekIndex
 
@@ -77,7 +78,7 @@ export default {
 
             const today = isSameDay(day, new Date())
 
-            const otherMonth = !isSameMonth(day, firstDay)
+            const otherMonth = !isSameMonth(day, monthFirstDay)
 
             return [day, { reminders, today, otherMonth }]
           }))
