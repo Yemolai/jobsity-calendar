@@ -1,9 +1,21 @@
 <template>
   <div :class="{ day: true, ...dynamicClasses }">
     <div class="contents">
-      <span class="date">
-        {{ formattedDate }}
-      </span>
+      <div class="header">
+        <span class="date">
+          {{ formattedDate }}
+        </span>
+        <span
+          class="remove-all-button-wrapper">
+          &nbsp;
+          <button
+            v-if="reminders.length"
+            class="remove-all-button"
+            @click="() => $emit('reminders-clear', date)">
+            🗑️
+          </button>
+        </span>
+      </div>
       <div class="reminder-list">
         <reminder
           v-for="reminder in reminderList"
@@ -76,16 +88,25 @@ export default {
   flex-direction: column;
   padding: 0.4em;
 }
-.day > .contents > .reminder-list {
+.day > .contents .reminder-list {
   max-height: calc(100% - 2em);
   overflow-y: auto;
 }
-.day > .contents > .reminder-list > * {
+.day > .contents .reminder-list > * {
   margin-bottom: 0.1em;
 }
-.day > .contents > span.date {
+.day > .contents span.date {
   text-align: left;
   padding: 0.2em;
+}
+.day > .contents .header {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+.remove-all-button {
+  color: red;
 }
 .day.other-month {
   color: rgba(0, 0, 0, 0.25);

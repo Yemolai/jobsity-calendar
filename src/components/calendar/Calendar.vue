@@ -6,6 +6,7 @@
       :key="`week-${idx + 1}`"
       :days="week"
       @reminder-click="payload => $emit('reminder-click', payload)"
+      @reminders-clear="payload => $emit('reminders-clear', payload)"
     />
   </div>
 </template>

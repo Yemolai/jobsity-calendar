@@ -6,6 +6,7 @@
       :key="`day-${date.getTime()}`"
       :date="date"
       @reminder-click="payload => $emit('reminder-click', payload)"
+      @reminders-clear="payload => $emit('reminders-clear', payload)"
     />
   </div>
 </template>

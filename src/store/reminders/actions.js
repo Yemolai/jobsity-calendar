@@ -1,5 +1,10 @@
 import format from 'date-fns/format'
-import { CREATE_REMINDER, REMOVE_REMINDER, UPDATE_REMINDER } from '@/store/reminders/mutation-types'
+import {
+  CLEAR_REMINDERS_ON_DAY,
+  CREATE_REMINDER,
+  REMOVE_REMINDER,
+  UPDATE_REMINDER
+} from '@/store/reminders/mutation-types'
 
 export async function create ({ commit }, payload) {
   try {
@@ -33,6 +38,16 @@ export function remove ({ commit }, payload) {
   try {
     const { id } = payload
     commit(REMOVE_REMINDER, { id })
+  } catch (error) {
+    // todo: replace here with a proper logger call
+    console.error('Failed to remove reminder', error.message, error)
+  }
+}
+
+export function clearDay ({ commit }, payload) {
+  try {
+    const { day } = payload
+    commit(CLEAR_REMINDERS_ON_DAY, { day })
   } catch (error) {
     // todo: replace here with a proper logger call
     console.error('Failed to remove reminder', error.message, error)

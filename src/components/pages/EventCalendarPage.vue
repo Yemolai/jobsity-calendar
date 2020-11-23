@@ -9,6 +9,7 @@
         :reference-date="referenceDate"
         @date-update="updateReferenceDate"
         @reminder-click="editReminder"
+        @reminders-clear="clearReminders"
       />
     </div>
     <div class="action-buttons-wrapper" v-if="!showReminderForm">
@@ -68,7 +69,8 @@ export default {
     ...mapActions('reminders', {
       createReminder: 'create',
       updateReminder: 'update',
-      removeReminder: 'remove'
+      removeReminder: 'remove',
+      clearRemindersOnDay: 'clearDay'
     }),
     updateReferenceDate (date) {
       if (isValid(new Date(date))) {
@@ -124,6 +126,17 @@ export default {
             console.error('Failed to remove reminder', message, error)
             alert('Sorry, an error occurred while trying to remove this reminder')
             this.closeReminderForm()
+          })
+      }
+    },
+    clearReminders (date) {
+      const confirmation = confirm(`You sure you want to clear all reminders on ${format(date, 'MMMM dd')}?`)
+      if (confirmation) {
+        this.clearRemindersOnDay({ day: date })
+          .catch(error => {
+            const { message } = error
+            // todo: replace by a logger to handle unexpected errors
+            console.error('Failed to clear all reminders of day' + date, message, error)
           })
       }
     }
