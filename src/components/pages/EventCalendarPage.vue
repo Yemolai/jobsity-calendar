@@ -1,8 +1,16 @@
 <template>
   <div class="container">
-    <p class="calendar-title">
-      {{ currentMonth }}
-    </p>
+    <div class="header">
+      <button @click="moveToPreviousMonth">
+        &lt;&nbsp;{{ previousMonth }}
+      </button>
+      <p class="calendar-title">
+        {{ currentMonth }}
+      </p>
+      <button @click="moveToNextMonth">
+        {{ nextMonth }}&nbsp;&gt;
+      </button>
+    </div>
     <div class="calendar-wrapper">
       <calendar
         :reminders="reminders"
@@ -33,6 +41,9 @@
 import { mapActions, mapGetters } from 'vuex'
 import format from 'date-fns/format'
 import isValid from 'date-fns/isValid'
+import addMonths from 'date-fns/addMonths'
+import isSameYear from 'date-fns/isSameYear'
+import startOfMonth from 'date-fns/startOfMonth'
 import Calendar from '@/components/calendar/Calendar'
 import ReminderForm from '@/components/calendar/ReminderForm'
 import { getForecast } from '@/services/weather.service'
@@ -62,7 +73,23 @@ export default {
       return this.reminderList
     },
     currentMonth () {
-      return format(this.referenceDate, 'MMMM')
+      return format(this.referenceDate, 'yyyy MMMM')
+    },
+    previousMonth () {
+      const { referenceDate } = this
+      const previousMonthFirstDay = startOfMonth(addMonths(referenceDate, -1))
+      const dateFormat = isSameYear(previousMonthFirstDay, referenceDate)
+        ? 'MMMM'
+        : 'yyyy MMMM'
+      return format(previousMonthFirstDay, dateFormat)
+    },
+    nextMonth () {
+      const { referenceDate } = this
+      const nextMonthFirstDay = startOfMonth(addMonths(referenceDate, 1))
+      const dateFormat = isSameYear(nextMonthFirstDay, referenceDate)
+        ? 'MMMM'
+        : 'yyyy MMMM'
+      return format(nextMonthFirstDay, dateFormat)
     }
   },
   methods: {
@@ -139,6 +166,16 @@ export default {
             console.error('Failed to clear all reminders of day' + date, message, error)
           })
       }
+    },
+    moveToPreviousMonth () {
+      const { referenceDate } = this
+      const referenceMonth = startOfMonth(referenceDate)
+      this.referenceDate = addMonths(referenceMonth, -1)
+    },
+    moveToNextMonth () {
+      const { referenceDate } = this
+      const referenceMonth = startOfMonth(referenceDate)
+      this.referenceDate = addMonths(referenceMonth, 1)
     }
   }
 }
@@ -150,6 +187,13 @@ export default {
 }
 .calendar-wrapper {
   padding: 0.2em 1em;
+}
+.header {
+  width: calc(100% - 3em);
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  padding: 0.4em 1.6em;
 }
 .action-buttons-wrapper {
   padding: 1em;
