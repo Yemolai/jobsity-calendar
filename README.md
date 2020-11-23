@@ -1,5 +1,7 @@
 # jobsity-calendar
 
+Gabriel's Vue project to face Jobsity's challenge
+
 ## Project setup
 ```
 yarn install
@@ -19,6 +21,12 @@ yarn build
 ```
 yarn lint
 ```
+
+### Unit tests
+```
+yarn test:unit
+```
+
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
