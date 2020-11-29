@@ -11,9 +11,9 @@
         reminder
       </p>
       <div class="actions">
-        <button @click="$emit('close')">
-          &times;
-        </button>
+        <v-btn elevation="0" color="transparent" size="small" @click="$emit('close')">
+          <v-icon>fas fa-times</v-icon>
+        </v-btn>
       </div>
     </div>
     <v-form ref="form" @submit.stop="e => e.preventDefault()">
@@ -119,15 +119,23 @@
         </v-row>
       </v-container>
       <div class="col actions">
-        <button @click="saveReminder">
-          Save
-        </button>
-        <button
+        <v-btn color="primary" @click="saveReminder">
+          <v-icon class="mr-2" size="small">
+            fas fa-save
+          </v-icon>
+          <span>Save</span>
+        </v-btn>
+        <v-btn
           v-if="mode === 'update'"
+          color="red"
+          dark
           @click="$emit('reminder-remove', value)"
         >
-          Remove
-        </button>
+          <v-icon class="mr-2" size="small">
+            fas fa-trash
+          </v-icon>
+          <span>Remove</span>
+        </v-btn>
       </div>
     </v-form>
   </div>
@@ -152,6 +160,9 @@ export default {
       type: Object,
       default: () => ({})
     }
+  },
+  beforeMount () {
+    this.$refs.form.reset()
   },
   data () {
     return {
@@ -239,9 +250,7 @@ export default {
 .reminder-form {
   display: flex;
   flex-flow: column nowrap;
-  padding: 1em;
-  margin: 0.8em;
-  border: 1px solid var(--color-dark);
+  max-width: calc(100% - 8px)
 }
 
 .reminder-form > *,
