@@ -16,48 +16,108 @@
         </button>
       </div>
     </div>
-    <form @submit="e => e.preventDefault()">
-      <label class="col">
-        <span class="label">Text:&nbsp;</span>
-        <input type="text" maxlength="30" v-model.lazy="text">
-      </label>
-      <label class="col">
-        <span class="label">Day and time:&nbsp;</span>
-        <input type="datetime-local" v-model="date">
-      </label>
-      <label class="col">
-        <span class="label">City:&nbsp;</span>
-        <input type="text" v-model="city">
-      </label>
-      <label v-if="value.forecast" class="col forecast">
-        <p class="label">
-          Forecast:
-        </p>
-        <p class="text">
-          {{ value.forecast }}
-        </p>
-      </label>
-      <label class="col">
-        <span class="label">Color:&nbsp;</span>
-        <input
-          readonly
-          type="text"
-          class="clickable"
-          v-model="color"
-          @click="showColorPicker = !showColorPicker"
-        >
-        <span>
-          <small>
-            Click on the color field to toggle the color picker
-          </small>
-        </span>
-      </label>
-      <div class="col justify-center">
-        <color-picker
-          v-if="showColorPicker"
-          v-model.lazy="color"
-        />
-      </div>
+    <v-form ref="form" @submit.stop="e => e.preventDefault()">
+      <v-container>
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              v-model.lazy="text"
+              :rules="[requiredFieldRule]"
+              label="Reminder Message"
+              maxlength="30"
+              outlined
+              placeholder="Go to the gym"
+              type="text"/>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="6" class="clickable">
+            <picker-input v-model="pickers.day" class="clickable">
+              <template #popup>
+                <v-date-picker
+                  v-model.lazy="day"
+                  label="Day"
+                  outlined
+                  @input="pickers.day = false"/>
+              </template>
+              <template #activator="{ on }">
+                <v-text-field
+                  class="clickable"
+                  v-on="on"
+                  :value="usaFormattedDate"
+                  label="Day"
+                  outlined
+                  readonly
+                  @click="pickers.day = !pickers.day"/>
+              </template>
+            </picker-input>
+          </v-col>
+          <v-col cols="6">
+            <picker-input v-model="pickers.time">
+              <template #popup>
+                <v-time-picker
+                  v-model.lazy="time"
+                  label="Time"
+                  outlined
+                  @click:minute="pickers.time = false"/>
+              </template>
+              <template #activator="{ on }">
+                <v-text-field
+                  class="clickable"
+                  v-model="time"
+                  v-on="on"
+                  label="Time"
+                  outlined
+                  readonly
+                  @click="pickers.time = !pickers.time"/>
+              </template>
+            </picker-input>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col :cols="value.forecast ? 6 : 12">
+            <v-text-field
+              v-model.lazy="city"
+              label="City"
+              placeholder="Curitiba, PR, Brazil"
+              outlined
+              :rules="[requiredFieldRule]"
+            >
+            </v-text-field>
+          </v-col>
+          <v-col v-if="value.forecast" class="col forecast">
+            <p class="label">
+              Forecast:
+            </p>
+            <p class="text">
+              {{ value.forecast }}
+            </p>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12">
+            <picker-input v-model="pickers.color">
+              <template #activator="{ on }">
+                <v-text-field
+                  v-model="color"
+                  v-on="on"
+                  class="clickable"
+                  hint="Click on the color field to toggle the color picker"
+                  label="Color"
+                  type="text"
+                  outlined
+                  readonly
+                  @click="pickers.color = !pickers.color"
+                  :rules="[requiredFieldRule]"
+                />
+              </template>
+              <v-color-picker
+                v-model.lazy="color"
+                @update:color="pickers.color = false" />
+            </picker-input>
+          </v-col>
+        </v-row>
+      </v-container>
       <div class="col actions">
         <button @click="saveReminder">
           Save
@@ -69,16 +129,19 @@
           Remove
         </button>
       </div>
-    </form>
+    </v-form>
   </div>
 </template>
 
 <script>
-import { Chrome as ColorPicker } from 'vue-color'
+import format from 'date-fns/format'
+import parse from 'date-fns/parse'
+import { requiredFieldRule } from '@/utils/validationRules'
+import PickerInput from '@/components/picker-input/PickerInput'
 
 export default {
   name: 'ReminderForm',
-  components: { ColorPicker },
+  components: { PickerInput },
   props: {
     mode: {
       type: String,
@@ -92,10 +155,19 @@ export default {
   },
   data () {
     return {
+      pickers: {
+        color: false,
+        day: false,
+        time: false
+      },
       showColorPicker: false
     }
   },
   computed: {
+    usaFormattedDate () {
+      const { date } = this.value
+      return format(date, 'MM/dd/yyyy')
+    },
     text: {
       get () {
         const { text = '' } = this.value
@@ -116,30 +188,6 @@ export default {
         this.$emit('input', { ...this.value, city })
       }
     },
-    date: {
-      get () {
-        const { date: rawTimestamp = new Date() } = this.value || {}
-        const timestamp = rawTimestamp instanceof Date
-          ? rawTimestamp
-          : new Date(rawTimestamp)
-        const date = [
-          timestamp.getFullYear(),
-          timestamp.getMonth() + 1,
-          timestamp.getDate()
-        ].join('-')
-        const time = [
-          timestamp.getHours(),
-          timestamp.getMinutes()
-        ]
-          .map(v => v.toString().padStart(2, '0'))
-          .join(':')
-        return [date, time].join('T')
-      },
-      set (val) {
-        const date = new Date(val)
-        this.$emit('input', { ...this.value, date })
-      }
-    },
     color: {
       get () {
         const { color = '#4560bb' } = this.value
@@ -149,11 +197,39 @@ export default {
         const color = hex
         this.$emit('input', { ...this.value, color })
       }
+    },
+    day: {
+      get () {
+        const { date } = this.value
+        return format(date, 'yyyy-MM-dd')
+      },
+      set (val) {
+        const { date } = this.value
+        const formatString = 'yyyy-MM-dd'
+        const parsed = parse(val, formatString, date)
+        this.$emit('input', { ...this.value, date: parsed })
+      }
+    },
+    time: {
+      get () {
+        const { date } = this.value
+        return format(date, 'HH:mm')
+      },
+      set (val) {
+        const { date } = this.value
+        const formatString = 'HH:mm'
+        const parsed = parse(val, formatString, date)
+        this.$emit('input', { ...this.value, date: parsed })
+      }
     }
   },
   methods: {
-    saveReminder () {
-      this.$emit('reminder-save')
+    requiredFieldRule,
+    async saveReminder () {
+      const valid = await this.$refs.form.validate()
+      if (valid) {
+        this.$emit('reminder-save')
+      }
     }
   }
 }
@@ -167,29 +243,30 @@ export default {
   margin: 0.8em;
   border: 1px solid var(--color-dark);
 }
+
 .reminder-form > *,
 .reminder-form > form > * {
   margin-left: 8px;
   margin-bottom: 8px;
 }
-.col {
-  width: calc(100% - calc(0.4em * 2));
-  padding: 0 0.4em;
-}
+
 .title {
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
 }
+
 .actions {
   display: flex;
   flex-flow: row-reverse wrap;
   justify-content: space-around;
   align-items: center;
 }
+
 label {
   display: inline-grid;
 }
+
 label > .label {
   text-align: left;
   color: var(--color-dark, #111);
@@ -197,27 +274,39 @@ label > .label {
   font-size: 0.8em;
   font-weight: 600;
 }
+
 label > input {
   color: var(--color-dark, #111);
   font-size: 1.2em;
 }
+
 .reminder-form > form {
   margin: 0 1em;
 }
+
 .reminder-form .forecast {
   text-align: left;
 }
+
 .reminder-form .forecast > .text {
   font-style: oblique;
 }
+
 .justify-center {
   display: flex;
   justify-content: center;
 }
+
 .clickable {
   cursor: pointer;
 }
+
 p {
   margin: 0;
+}
+</style>
+<style>
+.clickable * {
+  cursor: pointer;
 }
 </style>
