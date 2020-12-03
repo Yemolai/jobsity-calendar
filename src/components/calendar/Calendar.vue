@@ -1,5 +1,5 @@
 <template>
-  <div class="calendar">
+  <div class="calendar" style="margin: 0;">
     <calendar-week-days/>
     <calendar-week
       v-for="(week, idx) of weeks"

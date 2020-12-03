@@ -1,39 +1,71 @@
 <template>
   <div class="container">
     <div class="header">
-      <button @click="moveToPreviousMonth">
-        &lt;&nbsp;{{ previousMonth }}
-      </button>
-      <p class="calendar-title">
-        {{ currentMonth }}
-      </p>
-      <button @click="moveToNextMonth">
-        {{ nextMonth }}&nbsp;&gt;
-      </button>
+      <div style="text-align: left;">
+        <v-btn @click="moveToPreviousMonth">
+          <v-icon class="mr-2" size="small">
+            fa-chevron-left
+          </v-icon>
+          <span>
+            {{ previousMonth }}
+          </span>
+        </v-btn>
+      </div>
+      <div class="text-center">
+        <h1 class="text-body-1">
+          {{ currentMonth }}
+        </h1>
+      </div>
+      <div style="text-align: right;">
+        <v-btn
+          color="primary"
+          @click="moveToNextMonth">
+        <span>
+          {{ nextMonth }}
+        </span>
+          <v-icon class="ml-2" size="small">
+            fa-chevron-right
+          </v-icon>
+        </v-btn>
+      </div>
     </div>
     <div class="calendar-wrapper">
       <calendar
-        :reminders="reminders"
         :reference-date="referenceDate"
+        :reminders="reminders"
         @date-update="updateReferenceDate"
         @reminder-click="editReminder"
         @reminders-clear="clearReminders"
       />
     </div>
-    <div class="action-buttons-wrapper" v-if="!showReminderForm">
-      <button @click="triggerCreateReminderForm">
-        Add new reminder
-      </button>
-    </div>
-    <div class="reminder-form-wrapper" v-else-if="showReminderForm">
-      <reminder-form
-        v-model="reminder"
-        :mode="reminderFormMode"
-        @reminder-save="upsertReminder"
-        @reminder-remove="confirmRemoveReminder"
-        @close="closeReminderForm"
-      />
-    </div>
+    <v-row justify="center">
+      <v-dialog
+        v-model="showReminderForm"
+        max-width="60em"
+        persistent>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            v-on="on"
+            v-bind="attrs">
+            <v-icon size="small" class="mr-2">
+              fas fa-plus
+            </v-icon>
+            <span>
+              Add new reminder
+            </span>
+          </v-btn>
+        </template>
+        <v-card>
+          <reminder-form
+            v-model="reminder"
+            :mode="reminderFormMode"
+            @close="closeReminderForm"
+            @reminder-save="upsertReminder"
+            @reminder-remove="confirmRemoveReminder"
+          />
+        </v-card>
+      </v-dialog>
+    </v-row>
   </div>
 </template>
 
@@ -126,7 +158,7 @@ export default {
         this.reminder = {}
       })
         .catch(() => {
-        // todo: use a modal dialog here instead of alert
+          // todo: use a modal dialog here instead of alert
           alert('failed to save')
         })
     },
@@ -185,30 +217,36 @@ export default {
 .container {
   padding: 0.2em 1em;
 }
+
 .calendar-wrapper {
   padding: 0.2em 1em;
 }
+
 .header {
-  width: calc(100% - 3em);
+  width: 100%;
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
-  padding: 0.4em 1.6em;
+  padding: 0.4em 16px;
 }
+
 .action-buttons-wrapper {
   padding: 1em;
   display: flex;
   justify-content: center;
 }
+
 .reminder-form-wrapper {
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
 }
+
 .reminder-form-wrapper > * {
   min-width: 25em;
   max-width: min(32em, 100%);
 }
+
 [class$="-wrapper"] > * {
   margin-left: 8px;
   margin-bottom: 8px;

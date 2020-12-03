@@ -2,5 +2,10 @@
     --color-primary: #2f74b5;
     --color-light: rgba(255, 255, 255, 0.95);
     --color-light-grey: #f2f2f2;
+    --color-lighter-grey: #fbfbfbfb;
     --color-dark: #040404;
+}
+
+.app {
+    background-color: var(--color-lighter-grey, #eee);
 }
